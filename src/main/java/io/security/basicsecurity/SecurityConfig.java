@@ -1,25 +1,16 @@
 package io.security.basicsecurity;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-
-import java.io.IOException;
 
 @Slf4j
 @Configuration
@@ -27,11 +18,40 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    @Bean
+    UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("1111")
+                .roles("USER")
+                .build());
+        manager.createUser(User.withDefaultPasswordEncoder()
+                .username("sys")
+                .password("1111")
+                .roles("SYS")
+                .build());
+        manager.createUser(User.withDefaultPasswordEncoder()
+                .username("admin")
+                .password("1111")
+                .roles("ADMIN")
+                .build());
+        return manager;
+    }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(auth -> auth
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/user").hasRole("USER")
+                .requestMatchers("/admin/pay").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasAnyRole("ADMIN","SYS")
+                .anyRequest().authenticated());
+        http.formLogin(Customizer.withDefaults());
+
+        return http.getOrBuild();
+
+        /*return http.authorizeHttpRequests(auth -> auth
+
                         .anyRequest() // 모든 요청은
                         .authenticated() // 인증된 사용자만 접근 가능
                 )
@@ -83,7 +103,7 @@ public class SecurityConfig {
                 .rememberMe(rememberConfig -> rememberConfig
                         .rememberMeParameter("remember")
                         .tokenValiditySeconds(3600) // 토큰의 유효 시간(단위:초)
-                        .userDetailsService(userDetailsService)
+                        .userDetailsService(userDetailsService())
                 )
                 .sessionManagement(sessionConfig -> sessionConfig
                         .maximumSessions(1)
@@ -93,7 +113,7 @@ public class SecurityConfig {
                         .sessionFixation()
                         .changeSessionId()
                 )
-                .build();
+                .build();*/
     }
 
 }
