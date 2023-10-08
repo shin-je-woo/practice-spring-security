@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -22,7 +24,10 @@ import java.io.IOException;
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final UserDetailsService userDetailsService;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -74,6 +79,19 @@ public class SecurityConfig {
                             }
                         })
                         .deleteCookies("remember-me") // 해당 쿠키를 지운다.
+                )
+                .rememberMe(rememberConfig -> rememberConfig
+                        .rememberMeParameter("remember")
+                        .tokenValiditySeconds(3600) // 토큰의 유효 시간(단위:초)
+                        .userDetailsService(userDetailsService)
+                )
+                .sessionManagement(sessionConfig -> sessionConfig
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
+                .sessionManagement(sessionConfig -> sessionConfig
+                        .sessionFixation()
+                        .changeSessionId()
                 )
                 .build();
     }
