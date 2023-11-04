@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    password: password
+    url: jdbc:postgresql://localhost:5432/springsecurity
+    username: postgres
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        show_sql: true
+  thymeleaf:
+    cache: false
