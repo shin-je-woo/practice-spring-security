@@ -1,14 +1,19 @@
 package io.security.corespringsecurity.security.configs;
 
+import io.security.corespringsecurity.repository.UserRepository;
+import io.security.corespringsecurity.security.provider.CustomAuthenticationProvider;
+import io.security.corespringsecurity.security.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -43,5 +48,15 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults());
 
         return http.getOrBuild();
+    }
+
+    @Bean
+    protected UserDetailsService userDetailsService(UserRepository userRepository) {
+        return new CustomUserDetailsService(userRepository);
+    }
+
+    @Bean
+    protected AuthenticationProvider authenticationProvider(UserRepository userRepository) {
+        return new CustomAuthenticationProvider(userDetailsService(userRepository), passwordEncoder());
     }
 }
