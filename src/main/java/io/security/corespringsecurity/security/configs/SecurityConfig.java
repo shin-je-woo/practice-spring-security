@@ -2,6 +2,7 @@ package io.security.corespringsecurity.security.configs;
 
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
+import io.security.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import io.security.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import io.security.corespringsecurity.security.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 @Configuration
@@ -41,7 +43,7 @@ public class SecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/signup").permitAll()
+                        .requestMatchers("/", "/signup", "/logout").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/mypage").hasRole("USER")
                         .requestMatchers("/messages").hasRole("MANAGER")
@@ -49,11 +51,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
         http.
                 formLogin(form -> form
-                        .loginPage("/loginForm")
-                        .loginProcessingUrl("/login")
+                        .loginPage("/loginForm").permitAll()
+                        .loginProcessingUrl("/login").permitAll()
                         .authenticationDetailsSource(authenticationDetailsSource())
-                        .successHandler((request, response, authentication) -> response.sendRedirect("/"))
-                        .permitAll());
+                        .successHandler(authenticationSuccessHandler()));
 
         return http.getOrBuild();
     }
@@ -71,5 +72,10 @@ public class SecurityConfig {
     @Bean
     protected AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource() {
         return new FormAuthenticationDetailsSource();
+    }
+
+    @Bean
+    protected AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
     }
 }
