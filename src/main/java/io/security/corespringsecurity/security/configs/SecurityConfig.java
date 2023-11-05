@@ -2,6 +2,7 @@ package io.security.corespringsecurity.security.configs;
 
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
+import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.corespringsecurity.security.handler.CustomAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import io.security.corespringsecurity.security.provider.CustomAuthenticationProvider;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -43,21 +45,21 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/signup", "/logout", "loginForm*").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers("/mypage").hasRole("USER")
-                        .requestMatchers("/messages").hasRole("MANAGER")
-                        .requestMatchers("/config").hasRole("ADMIN")
-                        .anyRequest().authenticated());
-        http.
-                formLogin(form -> form
-                        .loginPage("/loginForm")
-                        .loginProcessingUrl("/login").permitAll()
-                        .authenticationDetailsSource(authenticationDetailsSource())
-                        .successHandler(authenticationSuccessHandler())
-                        .failureHandler(authenticationFailureHandler()));
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/signup", "/logout", "loginForm*").permitAll()
+                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                .requestMatchers("/mypage").hasRole("USER")
+                .requestMatchers("/messages").hasRole("MANAGER")
+                .requestMatchers("/config").hasRole("ADMIN")
+                .anyRequest().authenticated());
+        http.formLogin(form -> form
+                .loginPage("/loginForm")
+                .loginProcessingUrl("/login").permitAll()
+                .authenticationDetailsSource(authenticationDetailsSource())
+                .successHandler(authenticationSuccessHandler())
+                .failureHandler(authenticationFailureHandler()));
+        http.exceptionHandling(handler -> handler
+                        .accessDeniedHandler(accessDeniedHandler()));
 
         return http.getOrBuild();
     }
@@ -85,5 +87,10 @@ public class SecurityConfig {
     @Bean
     protected AuthenticationFailureHandler authenticationFailureHandler() {
         return new CustomAuthenticationFailureHandler();
+    }
+
+    @Bean
+    protected AccessDeniedHandler accessDeniedHandler() {
+        return new CustomAccessDeniedHandler("/denied");
     }
 }

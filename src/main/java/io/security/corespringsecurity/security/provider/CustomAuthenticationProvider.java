@@ -46,7 +46,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (!"secret".equals(webAuthenticationDetails.getSecretKey()))
             throw new InsufficientAuthenticationException("InsufficientAuthenticationException");
 
-        return new UsernamePasswordAuthenticationToken(accountContext.getAccount(), null, accountContext.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(accountContext, null, accountContext.getAuthorities());
     }
 
     @Override
