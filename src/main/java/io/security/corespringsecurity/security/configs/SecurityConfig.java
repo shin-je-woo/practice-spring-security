@@ -47,9 +47,7 @@ public class SecurityConfig {
                 formLogin(form -> form
                         .loginPage("/loginForm")
                         .loginProcessingUrl("/login")
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/")
+                        .successHandler((request, response, authentication) -> response.sendRedirect("/"))
                         .permitAll());
 
         return http.getOrBuild();
