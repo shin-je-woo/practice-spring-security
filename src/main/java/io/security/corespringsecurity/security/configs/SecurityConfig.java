@@ -1,7 +1,9 @@
 package io.security.corespringsecurity.security.configs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
+import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
 import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.corespringsecurity.security.handler.CustomAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
@@ -25,12 +27,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper;
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
@@ -60,6 +65,7 @@ public class SecurityConfig {
                 .failureHandler(authenticationFailureHandler()));
         http.exceptionHandling(handler -> handler
                         .accessDeniedHandler(accessDeniedHandler()));
+        http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.getOrBuild();
     }
@@ -92,5 +98,10 @@ public class SecurityConfig {
     @Bean
     protected AccessDeniedHandler accessDeniedHandler() {
         return new CustomAccessDeniedHandler("/denied");
+    }
+
+    @Bean
+    protected AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter() {
+        return new AjaxLoginAuthenticationFilter(objectMapper);
     }
 }
