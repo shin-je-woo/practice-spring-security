@@ -55,7 +55,7 @@ public class UserController {
         return "redirect:/loginForm";
     }
 
-    @GetMapping("denied")
+    @GetMapping("/denied")
     public String accessDenied(@RequestParam(required = false) String exception, Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
