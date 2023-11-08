@@ -7,6 +7,7 @@ import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFil
 import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import io.security.corespringsecurity.security.handler.CustomAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
+import io.security.corespringsecurity.security.provider.AjaxAuthenticationProvider;
 import io.security.corespringsecurity.security.provider.FormAuthenticationProvider;
 import io.security.corespringsecurity.security.service.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,6 +40,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
+    private final AuthenticationManagerBuilder authBuilder;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
@@ -54,34 +58,43 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
+
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/signup", "/logout", "/loginForm*").permitAll()
-                .requestMatchers(HttpMethod.POST, "/users", "/api/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/users", "/api/**").permitAll()
                 .requestMatchers("/mypage").hasRole("USER")
                 .requestMatchers("/messages").hasRole("MANAGER")
                 .requestMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated());
+
         http.formLogin(form -> form
                 .loginPage("/loginForm")
                 .loginProcessingUrl("/login").permitAll()
                 .authenticationDetailsSource(authenticationDetailsSource())
                 .successHandler(authenticationSuccessHandler())
                 .failureHandler(authenticationFailureHandler()));
+
         http.exceptionHandling(handler -> handler
                         .accessDeniedHandler(accessDeniedHandler()));
+
         http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.getOrBuild();
     }
 
     @Bean
-    protected UserDetailsService userDetailsService(UserRepository userRepository) {
+    protected UserDetailsService userDetailsService() {
         return new CustomUserDetailsService(userRepository);
     }
 
     @Bean
-    protected AuthenticationProvider authenticationProvider(UserRepository userRepository) {
-        return new FormAuthenticationProvider(userDetailsService(userRepository), passwordEncoder());
+    protected AuthenticationProvider formAuthenticationProvider() {
+        return new FormAuthenticationProvider(userDetailsService(), passwordEncoder());
+    }
+
+    @Bean
+    protected AuthenticationProvider ajaxAuthenticationProvider() {
+        return new AjaxAuthenticationProvider(userDetailsService(), passwordEncoder());
     }
 
     @Bean
@@ -113,6 +126,8 @@ public class SecurityConfig {
      */
     @Bean
     protected AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter() throws Exception {
+        authBuilder.authenticationProvider(formAuthenticationProvider());
+        authBuilder.authenticationProvider(ajaxAuthenticationProvider());
         AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter = new AjaxLoginAuthenticationFilter(objectMapper);
         ajaxLoginAuthenticationFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
         return ajaxLoginAuthenticationFilter;
