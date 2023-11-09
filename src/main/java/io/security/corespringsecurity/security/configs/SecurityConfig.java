@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
-import io.security.corespringsecurity.security.handler.CustomAccessDeniedHandler;
-import io.security.corespringsecurity.security.handler.CustomAuthenticationFailureHandler;
-import io.security.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
+import io.security.corespringsecurity.security.handler.*;
 import io.security.corespringsecurity.security.provider.AjaxAuthenticationProvider;
 import io.security.corespringsecurity.security.provider.FormAuthenticationProvider;
 import io.security.corespringsecurity.security.service.CustomUserDetailsService;
@@ -71,8 +69,8 @@ public class SecurityConfig {
                 .loginPage("/loginForm")
                 .loginProcessingUrl("/login").permitAll()
                 .authenticationDetailsSource(authenticationDetailsSource())
-                .successHandler(authenticationSuccessHandler())
-                .failureHandler(authenticationFailureHandler()));
+                .successHandler(formAuthenticationSuccessHandler())
+                .failureHandler(formAuthenticationFailureHandler()));
 
         http.exceptionHandling(handler -> handler
                         .accessDeniedHandler(accessDeniedHandler()));
@@ -103,13 +101,23 @@ public class SecurityConfig {
     }
 
     @Bean
-    protected AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return new CustomAuthenticationSuccessHandler();
+    protected AuthenticationSuccessHandler formAuthenticationSuccessHandler() {
+        return new FormAuthenticationSuccessHandler();
     }
 
     @Bean
-    protected AuthenticationFailureHandler authenticationFailureHandler() {
-        return new CustomAuthenticationFailureHandler();
+    protected AuthenticationFailureHandler formAuthenticationFailureHandler() {
+        return new FormAuthenticationFailureHandler();
+    }
+
+    @Bean
+    protected AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
+        return new AjaxAuthenticationSuccessHandler(objectMapper);
+    }
+
+    @Bean
+    protected AuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
+        return new AjaxAuthenticationFailureHandler(objectMapper);
     }
 
     @Bean
@@ -130,6 +138,8 @@ public class SecurityConfig {
         authBuilder.authenticationProvider(ajaxAuthenticationProvider());
         AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter = new AjaxLoginAuthenticationFilter(objectMapper);
         ajaxLoginAuthenticationFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
+        ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
+        ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
         return ajaxLoginAuthenticationFilter;
     }
 }
