@@ -2,6 +2,7 @@ package io.security.corespringsecurity.security.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.security.corespringsecurity.repository.UserRepository;
+import io.security.corespringsecurity.security.common.AjaxLoginAuthenticationEntryPoint;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
 import io.security.corespringsecurity.security.handler.*;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,6 +27,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -54,12 +57,29 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(0)
+    protected SecurityFilterChain ajaxSeucurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/api/**")
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated());
+
+        http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling(handler -> handler
+                .authenticationEntryPoint(ajaxAuthenticationEntryPoint())
+                .accessDeniedHandler(ajaxAccessDeniedHandler()));
+
+        return http.getOrBuild();
+    }
+
+    @Bean
+    @Order(1)
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/signup", "/logout", "/loginForm*").permitAll()
-                .requestMatchers(HttpMethod.POST, "/users", "/api/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .requestMatchers("/mypage").hasRole("USER")
                 .requestMatchers("/messages").hasRole("MANAGER")
                 .requestMatchers("/config").hasRole("ADMIN")
@@ -73,9 +93,7 @@ public class SecurityConfig {
                 .failureHandler(formAuthenticationFailureHandler()));
 
         http.exceptionHandling(handler -> handler
-                        .accessDeniedHandler(accessDeniedHandler()));
-
-        http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .accessDeniedHandler(formAccessDeniedHandler()));
 
         return http.getOrBuild();
     }
@@ -121,8 +139,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    protected AccessDeniedHandler accessDeniedHandler() {
-        return new CustomAccessDeniedHandler("/denied");
+    protected AccessDeniedHandler formAccessDeniedHandler() {
+        return new FormAccessDeniedHandler("/denied");
+    }
+
+    @Bean
+    protected AccessDeniedHandler ajaxAccessDeniedHandler() {
+        return new AjaxAccessDeniedHandler();
+    }
+
+    @Bean
+    protected AuthenticationEntryPoint ajaxAuthenticationEntryPoint() {
+        return new AjaxLoginAuthenticationEntryPoint();
     }
 
     /**

@@ -8,11 +8,11 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
 
-public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+public class FormAccessDeniedHandler implements AccessDeniedHandler {
 
     private final String deniedUrl;
 
-    public CustomAccessDeniedHandler(String deniedUrl) {
+    public FormAccessDeniedHandler(String deniedUrl) {
         this.deniedUrl = deniedUrl;
     }
 
