@@ -1,4 +1,4 @@
-### Ajax 로그인 요청
+### Send POST request with body as parameters
 POST http://localhost:8080/api/login
 Content-Type: application/json
 X-Requested-With: XMLHttpRequest
@@ -7,3 +7,17 @@ X-Requested-With: XMLHttpRequest
   "username": "user",
   "password": "1234"
 }
+
+### Send POST request with body as parameters
+POST http://localhost:8080/api/login
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+
+{
+"username": "manager",
+"password": "1234"
+}
+
+### GET request with a header
+GET http://localhost:8080/api/messages
+X-Requested-With: XMLHttpRequest

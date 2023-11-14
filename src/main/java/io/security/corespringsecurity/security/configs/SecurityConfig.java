@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -34,6 +33,10 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -59,8 +62,11 @@ public class SecurityConfig {
     @Bean
     @Order(0)
     protected SecurityFilterChain ajaxSeucurityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+
         http.securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/messages").hasRole("MANAGER")
                         .anyRequest().authenticated());
 
         http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -75,14 +81,11 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
-
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/signup", "/logout", "/loginForm*").permitAll()
-                .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .requestMatchers("/mypage").hasRole("USER")
                 .requestMatchers("/messages").hasRole("MANAGER")
                 .requestMatchers("/config").hasRole("ADMIN")
+                .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated());
 
         http.formLogin(form -> form
@@ -168,6 +171,19 @@ public class SecurityConfig {
         ajaxLoginAuthenticationFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
         ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
         ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
+        ajaxLoginAuthenticationFilter.setSecurityContextRepository(securityContextRepository());
         return ajaxLoginAuthenticationFilter;
+    }
+
+    /**
+     * 인증필터인 AjaxLoginAuthenticationFilter의 부모 AbstractAuthenticationProcessingFilter의 기본 SecurityContextRepository가 RequestAttributeSecurityContextRepository이기 때문에 SecurityContext가 세션에 저장되지 않는다.
+     * 참고로, UsernamePassowordAuthenticationFilter의 부모 AbstractAuthenticationProcessingFilter의 SecurityContextRepository는 DelegatingSecurityContextRepository(HttpSessionSecurityContextRepository(), RequestAttributeSecurityContextRepository())이다.
+     * 따라서, 인증필터 AjaxLoginAuthenticationFilter의 부모 AbstractAuthenticationProcessingFilter에 세션을 이용하는 SecurityContextRepository를 따로 등록해줘야 한다.(기본설정이 아니기 때문)
+     */
+    @Bean
+    protected SecurityContextRepository securityContextRepository() {
+        return new DelegatingSecurityContextRepository(
+                new HttpSessionSecurityContextRepository(),
+                new RequestAttributeSecurityContextRepository());
     }
 }
