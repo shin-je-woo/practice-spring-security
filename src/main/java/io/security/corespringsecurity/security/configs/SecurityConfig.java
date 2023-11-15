@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,10 +61,11 @@ public class SecurityConfig {
     @Bean
     @Order(0)
     protected SecurityFilterChain ajaxSeucurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable);
+//        http.csrf(AbstractHttpConfigurer::disable);
 
         http.securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/loginForm").permitAll()
                         .requestMatchers("/api/messages").hasRole("MANAGER")
                         .anyRequest().authenticated());
 

@@ -38,7 +38,7 @@ public class UserController {
         return "redirect:/";
     }
 
-    @GetMapping("/loginForm")
+    @GetMapping({"/loginForm", "/api/loginForm"})
     public String loginForm() {
         return "user/login/loginForm";
     }
@@ -55,7 +55,7 @@ public class UserController {
         return "redirect:/loginForm";
     }
 
-    @GetMapping("/denied")
+    @GetMapping({"/denied", "/api/denied"})
     public String accessDenied(@RequestParam(required = false) String exception, Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

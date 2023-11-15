@@ -19,5 +19,5 @@ X-Requested-With: XMLHttpRequest
 }
 
 ### GET request with a header
-GET http://localhost:8080/api/messages
+POST http://localhost:8080/api/messages
 X-Requested-With: XMLHttpRequest
