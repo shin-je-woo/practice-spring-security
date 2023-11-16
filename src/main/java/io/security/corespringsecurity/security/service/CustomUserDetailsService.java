@@ -1,6 +1,6 @@
 package io.security.corespringsecurity.security.service;
 
-import io.security.corespringsecurity.domain.Account;
+import io.security.corespringsecurity.domain.entity.Account;
 import io.security.corespringsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Account account = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다. username = " + username));
 
-        return new AccountContext(account, List.of(new SimpleGrantedAuthority(account.getRole())));
+        // TODO: roles구현 필요
+        return new AccountContext(account, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 }
