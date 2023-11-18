@@ -29,7 +29,9 @@ public class UserServiceImpl implements UserService {
         String encryptedPassword = passwordEncoder.encode(accountDto.getPassword());
         accountDto.setPassword(encryptedPassword);
         Account account = accountDto.toEntity();
-        // TODO: Role 연결
+        Role userRole = roleRepository.findByRoleName("ROLE_USER")
+                .orElseThrow(() -> new IllegalStateException("USER권한이 존재하지 않습니다."));
+        account.getUserRoles().add(userRole);
 
         userRepository.save(account);
     }

@@ -34,6 +34,7 @@ public class SetupDataLoader implements ApplicationListener<ApplicationReadyEven
     public void setupSecurityResources() {
         List<Role> roles = new ArrayList<>();
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN", "관리자");
+        createRoleIfNotFound("ROLE_USER", "사용자");
         roles.add(adminRole);
         createUserIfNotFound("admin", "pass", "admin@gmail.com", 10, roles);
     }

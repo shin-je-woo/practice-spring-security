@@ -39,7 +39,7 @@ public class Account {
         this.password = password;
         this.email = email;
         this.age = age;
-        this.userRoles = userRoles;
+        this.userRoles = userRoles != null ? userRoles : new ArrayList<>();
     }
 
     public AccountDto toDto() {
