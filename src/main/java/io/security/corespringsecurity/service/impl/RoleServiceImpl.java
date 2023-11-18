@@ -1,5 +1,6 @@
 package io.security.corespringsecurity.service.impl;
 
+import io.security.corespringsecurity.domain.dto.RoleDto;
 import io.security.corespringsecurity.domain.entity.Role;
 import io.security.corespringsecurity.repository.RoleRepository;
 import io.security.corespringsecurity.service.RoleService;
@@ -19,5 +20,19 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> getRoles() {
         return roleRepository.findAll();
+    }
+
+    @Override
+    public RoleDto getRole(long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("권한이 존재하지 않습니다. id = " + id))
+                .toDto();
+    }
+
+    @Transactional
+    @Override
+    public void createRole(RoleDto roleDto) {
+        Role role = roleDto.toEntity();
+        roleRepository.save(role);
     }
 }

@@ -1,5 +1,6 @@
 package io.security.corespringsecurity.domain.entity;
 
+import io.security.corespringsecurity.domain.dto.RoleDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -31,6 +32,14 @@ public class Role {
         this.id = id;
         this.roleName = roleName;
         this.roleDesc = roleDesc;
-        this.accounts = accounts;
+        this.accounts = accounts != null ? accounts : new ArrayList<>();
+    }
+
+    public RoleDto toDto() {
+        return RoleDto.builder()
+                .id(id)
+                .roleName(roleName)
+                .roleDesc(roleDesc)
+                .build();
     }
 }
