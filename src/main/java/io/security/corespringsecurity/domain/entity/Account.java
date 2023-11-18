@@ -1,16 +1,11 @@
 package io.security.corespringsecurity.domain.entity;
 
 import io.security.corespringsecurity.domain.dto.AccountDto;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,30 +19,43 @@ public class Account {
 
     private String username;
 
+    @Setter
     private String password;
 
     private String email;
 
-    private String age;
+    private int age;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "account_roles",
+            joinColumns = {@JoinColumn(name = "account_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private List<Role> userRoles = new ArrayList<>();
 
     @Builder
-    public Account(Long id, String username, String password, String email, String age, Set<String> userRoles) {
+    public Account(Long id, String username, String password, String email, int age, List<Role> userRoles) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
         this.age = age;
-//        this.userRoles = userRoles;
+        this.userRoles = userRoles;
     }
 
     public AccountDto toDto() {
-        return AccountDto.builder()
+        AccountDto accountDto = AccountDto.builder()
                 .id(id)
                 .username(username)
                 .password(password)
                 .email(email)
                 .age(age)
-//                .roles(userRoles.stream().toList())
                 .build();
+
+        List<String> roleNames = userRoles.stream()
+                .map(Role::getRoleName)
+                .toList();
+        accountDto.setRoles(roleNames);
+
+        return accountDto;
     }
 }

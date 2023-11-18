@@ -1,7 +1,7 @@
 package io.security.corespringsecurity.controller.user;
 
 import io.security.corespringsecurity.domain.dto.AccountDto;
-import io.security.corespringsecurity.service.user.UserService;
+import io.security.corespringsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

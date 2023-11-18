@@ -32,7 +32,7 @@
             },
             error : function(xhr, status, error) {
                 console.log(error);
-                window.location = '/loginForm?error=true&exception=' + xhr.responseJSON.error;
+                window.location = '/loginForm?error=true&exception=' + (xhr.responseJSON.error || xhr.responseJSON.toString());
             }
         });
     }

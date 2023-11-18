@@ -2,8 +2,12 @@ package io.security.corespringsecurity.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,6 +23,14 @@ public class Role {
 
     private String roleDesc;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Account account;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "userRoles")
+    private List<Account> accounts = new ArrayList<>();
+
+    @Builder
+    public Role(Long id, String roleName, String roleDesc, List<Account> accounts) {
+        this.id = id;
+        this.roleName = roleName;
+        this.roleDesc = roleDesc;
+        this.accounts = accounts;
+    }
 }

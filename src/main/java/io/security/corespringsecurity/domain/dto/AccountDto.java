@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -17,11 +18,11 @@ public class AccountDto {
     private String username;
     private String password;
     private String email;
-    private String age;
-    private List<String> roles;
+    private int age;
+    private List<String> roles = new ArrayList<>();
 
     @Builder
-    public AccountDto(Long id, String username, String password, String email, String age, List<String> roles) {
+    public AccountDto(Long id, String username, String password, String email, int age, List<String> roles) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -30,6 +31,9 @@ public class AccountDto {
         this.roles = roles;
     }
 
+    /**
+     * roles는 직접 변환 필요
+     */
     public Account toEntity() {
         return Account.builder()
                 .username(username)
