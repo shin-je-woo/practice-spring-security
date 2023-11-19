@@ -1,7 +1,9 @@
 package io.security.corespringsecurity.security.listener;
 
 import io.security.corespringsecurity.domain.entity.Account;
+import io.security.corespringsecurity.domain.entity.Resources;
 import io.security.corespringsecurity.domain.entity.Role;
+import io.security.corespringsecurity.repository.ResourcesRepository;
 import io.security.corespringsecurity.repository.RoleRepository;
 import io.security.corespringsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -22,7 +25,10 @@ public class SetupDataLoader implements ApplicationListener<ApplicationReadyEven
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ResourcesRepository resourcesRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private static AtomicInteger resourceOrder = new AtomicInteger(0);
 
     @Override
     @Transactional
@@ -37,6 +43,7 @@ public class SetupDataLoader implements ApplicationListener<ApplicationReadyEven
         createRoleIfNotFound("ROLE_USER", "사용자");
         roles.add(adminRole);
         createUserIfNotFound("admin", "pass", "admin@gmail.com", 10, roles);
+        createResourceIfNotFound("/admin/**", "", roles, "url");
     }
 
     private Role createRoleIfNotFound(String roleName, String roleDesc) {
@@ -61,5 +68,19 @@ public class SetupDataLoader implements ApplicationListener<ApplicationReadyEven
                         .build());
 
         return userRepository.save(account);
+    }
+
+    private Resources createResourceIfNotFound(String resourceName, String httpMethod, List<Role> roleList, String resourceType) {
+
+        Resources resources = resourcesRepository.findByResourceNameAndHttpMethod(resourceName, httpMethod)
+                .orElseGet(() -> Resources.builder()
+                        .resourceName(resourceName)
+                        .httpMethod(httpMethod)
+                        .resourceType(resourceType)
+                        .orderNum(resourceOrder.incrementAndGet())
+                        .roleList(roleList)
+                        .build());
+
+        return resourcesRepository.save(resources);
     }
 }

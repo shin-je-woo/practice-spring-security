@@ -27,12 +27,14 @@ public class Role {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "userRoles")
     private List<Account> accounts = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roleList")
+    private List<Resources> resourcesList = new ArrayList<>();
+
     @Builder
-    public Role(Long id, String roleName, String roleDesc, List<Account> accounts) {
+    public Role(Long id, String roleName, String roleDesc) {
         this.id = id;
         this.roleName = roleName;
         this.roleDesc = roleDesc;
-        this.accounts = accounts != null ? accounts : new ArrayList<>();
     }
 
     public RoleDto toDto() {

@@ -37,7 +37,7 @@ public class RoleController {
         return "admin/role/detail";
     }
 
-    @GetMapping(value = "/admin/roles/register")
+    @GetMapping("/admin/roles/register")
     public String viewRoles(Model model) {
 
         RoleDto role = new RoleDto();
@@ -46,7 +46,7 @@ public class RoleController {
         return "admin/role/detail";
     }
 
-    @PostMapping(value="/admin/roles")
+    @PostMapping("/admin/roles")
     public String createRole(@ModelAttribute RoleDto roleDto) {
 
         roleService.createRole(roleDto);

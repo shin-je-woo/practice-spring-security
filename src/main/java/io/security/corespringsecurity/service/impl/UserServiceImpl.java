@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Transactional(readOnly = true)
-@Service("userService")
+@Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -69,3 +69,5 @@ public class UserServiceImpl implements UserService {
         account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
     }
 }
+
+
