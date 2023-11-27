@@ -6,6 +6,7 @@ import io.security.corespringsecurity.security.common.AjaxLoginAuthenticationEnt
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
 import io.security.corespringsecurity.security.handler.*;
+import io.security.corespringsecurity.security.manager.CustomAuthorizationManager;
 import io.security.corespringsecurity.security.provider.AjaxAuthenticationProvider;
 import io.security.corespringsecurity.security.provider.FormAuthenticationProvider;
 import io.security.corespringsecurity.security.service.CustomUserDetailsService;
@@ -81,19 +82,17 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/mypage").hasRole("USER")
-                .requestMatchers("/messages").hasRole("MANAGER")
-                .requestMatchers("/config").hasRole("ADMIN")
-                .requestMatchers("/**").permitAll()
-                .anyRequest().authenticated());
-
         http.formLogin(form -> form
                 .loginPage("/loginForm")
                 .loginProcessingUrl("/login").permitAll()
                 .authenticationDetailsSource(authenticationDetailsSource())
                 .successHandler(formAuthenticationSuccessHandler())
                 .failureHandler(formAuthenticationFailureHandler()));
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/**").access(new CustomAuthorizationManager())
+                .anyRequest().authenticated());
+
 
         http.exceptionHandling(handler -> handler
                 .accessDeniedHandler(formAccessDeniedHandler()));
