@@ -17,7 +17,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static org.springframework.security.web.util.matcher.RequestMatcher.*;
+import static org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
+
 
 public class CustomAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 

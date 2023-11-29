@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,12 +37,11 @@ public class SetupDataLoader implements ApplicationListener<ApplicationReadyEven
     }
 
     public void setupSecurityResources() {
-        List<Role> roles = new ArrayList<>();
         Role adminRole = createRoleIfNotFound("ROLE_ADMIN", "관리자");
-        createRoleIfNotFound("ROLE_USER", "사용자");
-        roles.add(adminRole);
-        createUserIfNotFound("admin", "pass", "admin@gmail.com", 10, roles);
-        createResourceIfNotFound("/admin/**", "", roles, "url");
+        Role userRole = createRoleIfNotFound("ROLE_USER", "사용자");
+        createUserIfNotFound("admin", "pass", "admin@gmail.com", 10, List.of(adminRole));
+        createUserIfNotFound("user", "pass", "user@gmail.com", 20, List.of(userRole));
+        createResourceIfNotFound("/admin/**", "", List.of(adminRole), "url");
     }
 
     private Role createRoleIfNotFound(String roleName, String roleDesc) {
