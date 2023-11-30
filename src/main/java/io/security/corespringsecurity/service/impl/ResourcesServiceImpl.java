@@ -6,6 +6,7 @@ import io.security.corespringsecurity.domain.entity.Role;
 import io.security.corespringsecurity.repository.ResourcesRepository;
 import io.security.corespringsecurity.repository.RoleRepository;
 import io.security.corespringsecurity.service.ResourcesService;
+import io.security.corespringsecurity.service.SecurityResourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class ResourcesServiceImpl implements ResourcesService {
 
     private final ResourcesRepository resourcesRepository;
     private final RoleRepository roleRepository;
+    private final SecurityResourceService securityResourceService;
 
     @Override
     public List<ResourcesDto> getResources() {
@@ -46,11 +48,13 @@ public class ResourcesServiceImpl implements ResourcesService {
         resources.getRoleList().add(role);
 
         resourcesRepository.save(resources);
+        securityResourceService.changeResourcesConfig();
     }
 
     @Transactional
     @Override
     public void deleteResoureces(Long id) {
         resourcesRepository.deleteById(id);
+        securityResourceService.changeResourcesConfig();
     }
 }

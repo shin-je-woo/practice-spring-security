@@ -92,7 +92,7 @@ public class SecurityConfig {
                 .failureHandler(formAuthenticationFailureHandler()));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "loginForm**").permitAll()
+                .requestMatchers("/", "/loginForm**", "/signup**", "/users").permitAll()
                 .requestMatchers("/**").access(new CustomAuthorizationManager(securityResourceService)));
 
 

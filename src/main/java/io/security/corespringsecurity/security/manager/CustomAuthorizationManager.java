@@ -30,6 +30,10 @@ public class CustomAuthorizationManager implements AuthorizationManager<RequestA
     private final RoleHierarchy roleHierarchy = new NullRoleHierarchy();
     private final SecurityResourceService securityResourceService;
 
+    /**
+     * resources테이블에 저장된 자원은 사용자의 권한을 체크한다.
+     * resources테이블에 저장되지 않은 자원은 인증된 사용자인지 체크한다. -> anyRequest().authenticated() 역할 수행.
+     */
     @Override
     public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext requestAuthorizationContext) {
 

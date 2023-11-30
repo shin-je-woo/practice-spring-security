@@ -17,7 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SecurityResourceService {
 
     private final ResourcesRepository resourcesRepository;
+    /** Resources 엔티티의 추가/수정/삭제 이벤트가 있을 때 변경되는 값 */
     private final AtomicBoolean isResourcesConfigChanged = new AtomicBoolean(true);
+    /** RequestMatcher : 인증을 수행할 request , List<String> : 권한이름들 */
     private final Map<RequestMatcher, List<String>> resourceMap = new ConcurrentHashMap<>();
 
     @Transactional(readOnly = true)
