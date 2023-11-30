@@ -10,6 +10,7 @@ import io.security.corespringsecurity.security.manager.CustomAuthorizationManage
 import io.security.corespringsecurity.security.provider.AjaxAuthenticationProvider;
 import io.security.corespringsecurity.security.provider.FormAuthenticationProvider;
 import io.security.corespringsecurity.security.service.CustomUserDetailsService;
+import io.security.corespringsecurity.service.SecurityResourceService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -47,6 +48,7 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final AuthenticationManagerBuilder authBuilder;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final SecurityResourceService securityResourceService;
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
@@ -90,9 +92,8 @@ public class SecurityConfig {
                 .failureHandler(formAuthenticationFailureHandler()));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/").permitAll()
-                .requestMatchers("/auth/**").access(new CustomAuthorizationManager())
-                .anyRequest().authenticated());
+                .requestMatchers("/", "loginForm**").permitAll()
+                .requestMatchers("/**").access(new CustomAuthorizationManager(securityResourceService)));
 
 
         http.exceptionHandling(handler -> handler
