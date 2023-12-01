@@ -48,13 +48,13 @@ public class ResourcesServiceImpl implements ResourcesService {
         resources.getRoleList().add(role);
 
         resourcesRepository.save(resources);
-        securityResourceService.changeResourcesConfig();
+        securityResourceService.changeResource();
     }
 
     @Transactional
     @Override
     public void deleteResoureces(Long id) {
         resourcesRepository.deleteById(id);
-        securityResourceService.changeResourcesConfig();
+        securityResourceService.changeResource();
     }
 }

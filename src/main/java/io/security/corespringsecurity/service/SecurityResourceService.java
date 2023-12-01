@@ -18,22 +18,23 @@ public class SecurityResourceService {
 
     private final ResourcesRepository resourcesRepository;
     /** Resources 엔티티의 추가/수정/삭제 이벤트가 있을 때 변경되는 값 */
-    private final AtomicBoolean isResourcesConfigChanged = new AtomicBoolean(true);
+    private final AtomicBoolean isResourceChanged = new AtomicBoolean(true);
     /** RequestMatcher : 인증을 수행할 request , List<String> : 권한이름들 */
     private final Map<RequestMatcher, List<String>> resourceMap = new ConcurrentHashMap<>();
 
     @Transactional(readOnly = true)
     public Map<RequestMatcher, List<String>> getResourceMap() {
 
-        if (!isResourcesConfigChanged.get()) {
+        if (!isResourceChanged.get()) {
             return resourceMap;
         }
         putResourceMap();
-        isResourcesConfigChanged.set(false);
+        isResourceChanged.set(false);
         return resourceMap;
     }
 
     private void putResourceMap() {
+        resourceMap.clear();
         List<Resources> resources = resourcesRepository.findAllResourcesWithUrl();
         resources.forEach(resource -> {
             List<String> roleNames = resource.getRoleList().stream()
@@ -43,7 +44,7 @@ public class SecurityResourceService {
         });
     }
 
-    public void changeResourcesConfig() {
-        isResourcesConfigChanged.set(true);
+    public void changeResource() {
+        isResourceChanged.set(true);
     }
 }
