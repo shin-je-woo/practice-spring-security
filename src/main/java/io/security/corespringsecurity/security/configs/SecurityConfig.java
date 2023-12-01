@@ -17,6 +17,9 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyUtils;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -38,6 +41,10 @@ import org.springframework.security.web.context.DelegatingSecurityContextReposit
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -93,7 +100,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/loginForm**", "/signup**", "/users").permitAll()
-                .requestMatchers("/**").access(new CustomAuthorizationManager(securityResourceService)));
+                .requestMatchers("/**").access(new CustomAuthorizationManager(securityResourceService, roleHierarchy())));
 
 
         http.exceptionHandling(handler -> handler
@@ -155,6 +162,19 @@ public class SecurityConfig {
     @Bean
     protected AuthenticationEntryPoint ajaxAuthenticationEntryPoint() {
         return new AjaxLoginAuthenticationEntryPoint();
+    }
+
+    @Bean
+    protected RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        Map<String, List<String>> roleHierarchyMap = new HashMap<>();
+
+        roleHierarchyMap.put("ROLE_ADMIN", List.of("ROLE_MANAGER"));
+        roleHierarchyMap.put("ROLE_MANAGER", List.of("ROLE_USER"));
+        String roleHierarchyFromMap = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+
+        roleHierarchy.setHierarchy(roleHierarchyFromMap);
+        return roleHierarchy;
     }
 
     /**

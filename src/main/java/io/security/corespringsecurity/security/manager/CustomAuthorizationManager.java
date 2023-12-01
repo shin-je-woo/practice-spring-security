@@ -3,7 +3,6 @@ package io.security.corespringsecurity.security.manager;
 import io.security.corespringsecurity.service.SecurityResourceService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -27,8 +26,8 @@ import static org.springframework.security.web.util.matcher.RequestMatcher.Match
 public class CustomAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
     private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private final RoleHierarchy roleHierarchy = new NullRoleHierarchy();
     private final SecurityResourceService securityResourceService;
+    private final RoleHierarchy roleHierarchy;
 
     /**
      * resources테이블에 저장된 자원은 사용자의 권한을 체크한다.
