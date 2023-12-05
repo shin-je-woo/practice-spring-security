@@ -15,6 +15,9 @@ public class UserController {
 
     @GetMapping(value = "/mypage")
     public String myPage() {
+
+        userService.secure();
+
         return "user/mypage";
     }
 

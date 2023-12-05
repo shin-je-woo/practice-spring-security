@@ -14,4 +14,6 @@ public interface UserService {
     AccountDto getUser(Long id);
 
     void modifyUser(AccountDto accountDto);
+
+    void secure();
 }

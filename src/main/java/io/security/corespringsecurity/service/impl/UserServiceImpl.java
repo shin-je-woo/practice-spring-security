@@ -7,12 +7,15 @@ import io.security.corespringsecurity.repository.RoleRepository;
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -67,6 +70,12 @@ public class UserServiceImpl implements UserService {
         });
 
         account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
+    }
+
+    @Override
+    @Secured("ROLE_USER")
+    public void secure() {
+        log.info("secure called.");
     }
 }
 
