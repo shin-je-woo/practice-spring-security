@@ -1,4 +1,4 @@
-package io.security.corespringsecurity.security.handler;
+package io.security.corespringsecurity.security.handler.ajax;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

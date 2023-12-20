@@ -1,4 +1,4 @@
-package io.security.corespringsecurity.security.handler;
+package io.security.corespringsecurity.security.handler.ajax;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,16 +8,11 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
 
-public class FormAccessDeniedHandler implements AccessDeniedHandler {
-
-    private final String deniedUrl;
-
-    public FormAccessDeniedHandler(String deniedUrl) {
-        this.deniedUrl = deniedUrl;
-    }
+public class AjaxAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        response.sendRedirect(deniedUrl + "?exception=" + accessDeniedException.getMessage());
+
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access is denied");
     }
 }
