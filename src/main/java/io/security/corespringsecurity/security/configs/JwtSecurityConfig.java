@@ -30,7 +30,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -100,7 +99,7 @@ public class JwtSecurityConfig {
         AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter = new AjaxLoginAuthenticationFilter(objectMapper);
         ajaxLoginAuthenticationFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
         ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(new JwtPublisher(objectMapper, jwtProperties));
-        ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
+        ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(new AjaxAuthenticationFailureHandler(objectMapper));
         ajaxLoginAuthenticationFilter.setSecurityContextRepository(new RequestAttributeSecurityContextRepository());
         return ajaxLoginAuthenticationFilter;
     }
@@ -113,10 +112,5 @@ public class JwtSecurityConfig {
     @Bean
     protected UserDetailsService userDetailsService() {
         return new CustomUserDetailsService(userRepository);
-    }
-
-    @Bean
-    protected AuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
-        return new AjaxAuthenticationFailureHandler(objectMapper);
     }
 }

@@ -33,11 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
@@ -86,8 +82,8 @@ public class SecurityConfig {
         http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling(handler -> handler
-                .authenticationEntryPoint(ajaxAuthenticationEntryPoint())
-                .accessDeniedHandler(ajaxAccessDeniedHandler()));
+                .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
+                .accessDeniedHandler(new AjaxAccessDeniedHandler()));
 
         return http.getOrBuild();
     }
@@ -99,8 +95,8 @@ public class SecurityConfig {
                 .loginPage("/loginForm")
                 .loginProcessingUrl("/login").permitAll()
                 .authenticationDetailsSource(authenticationDetailsSource())
-                .successHandler(formAuthenticationSuccessHandler())
-                .failureHandler(formAuthenticationFailureHandler()));
+                .successHandler(new FormAuthenticationSuccessHandler())
+                .failureHandler(new FormAuthenticationFailureHandler()));
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/api/loginForm**", "/signup**", "/users").permitAll()
@@ -108,7 +104,7 @@ public class SecurityConfig {
 
 
         http.exceptionHandling(handler -> handler
-                .accessDeniedHandler(formAccessDeniedHandler()));
+                .accessDeniedHandler(new FormAccessDeniedHandler("denied")));
 
         return http.getOrBuild();
     }
@@ -131,41 +127,6 @@ public class SecurityConfig {
     @Bean
     protected AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource() {
         return new FormAuthenticationDetailsSource();
-    }
-
-    @Bean
-    protected AuthenticationSuccessHandler formAuthenticationSuccessHandler() {
-        return new FormAuthenticationSuccessHandler();
-    }
-
-    @Bean
-    protected AuthenticationFailureHandler formAuthenticationFailureHandler() {
-        return new FormAuthenticationFailureHandler();
-    }
-
-    @Bean
-    protected AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
-        return new AjaxAuthenticationSuccessHandler(objectMapper);
-    }
-
-    @Bean
-    protected AuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
-        return new AjaxAuthenticationFailureHandler(objectMapper);
-    }
-
-    @Bean
-    protected AccessDeniedHandler formAccessDeniedHandler() {
-        return new FormAccessDeniedHandler("/denied");
-    }
-
-    @Bean
-    protected AccessDeniedHandler ajaxAccessDeniedHandler() {
-        return new AjaxAccessDeniedHandler();
-    }
-
-    @Bean
-    protected AuthenticationEntryPoint ajaxAuthenticationEntryPoint() {
-        return new AjaxLoginAuthenticationEntryPoint();
     }
 
     @Bean
@@ -194,8 +155,8 @@ public class SecurityConfig {
         authBuilder.authenticationProvider(ajaxAuthenticationProvider());
         AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter = new AjaxLoginAuthenticationFilter(objectMapper);
         ajaxLoginAuthenticationFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
-        ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
-        ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
+        ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(new AjaxAuthenticationSuccessHandler(objectMapper));
+        ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(new AjaxAuthenticationFailureHandler(objectMapper));
         ajaxLoginAuthenticationFilter.setSecurityContextRepository(securityContextRepository());
         return ajaxLoginAuthenticationFilter;
     }
