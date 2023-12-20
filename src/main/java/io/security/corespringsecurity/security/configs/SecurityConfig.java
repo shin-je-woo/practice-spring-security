@@ -5,7 +5,12 @@ import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.common.AjaxLoginAuthenticationEntryPoint;
 import io.security.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
-import io.security.corespringsecurity.security.handler.*;
+import io.security.corespringsecurity.security.handler.ajax.AjaxAccessDeniedHandler;
+import io.security.corespringsecurity.security.handler.ajax.AjaxAuthenticationFailureHandler;
+import io.security.corespringsecurity.security.handler.ajax.AjaxAuthenticationSuccessHandler;
+import io.security.corespringsecurity.security.handler.form.FormAccessDeniedHandler;
+import io.security.corespringsecurity.security.handler.form.FormAuthenticationFailureHandler;
+import io.security.corespringsecurity.security.handler.form.FormAuthenticationSuccessHandler;
 import io.security.corespringsecurity.security.manager.CustomAuthorizationManager;
 import io.security.corespringsecurity.security.provider.AjaxAuthenticationProvider;
 import io.security.corespringsecurity.security.provider.FormAuthenticationProvider;
@@ -15,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -24,9 +28,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -47,9 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true)
+//@Configuration
+//@EnableWebSecurity
+//@EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -101,7 +103,7 @@ public class SecurityConfig {
                 .failureHandler(formAuthenticationFailureHandler()));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/loginForm**", "/signup**", "/users").permitAll()
+                .requestMatchers("/", "/api/loginForm**", "/signup**", "/users").permitAll()
                 .requestMatchers("/**").access(new CustomAuthorizationManager(securityResourceService, roleHierarchy())));
 
 

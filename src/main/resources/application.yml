@@ -17,3 +17,6 @@ spring:
         show_sql: true
   thymeleaf:
     cache: false
+
+jwlog-jwt:
+  signature-key-string: F5wG4g6/rENFK5hmFzywrCymK8d0q47BHWH5Zd2TRjM=
