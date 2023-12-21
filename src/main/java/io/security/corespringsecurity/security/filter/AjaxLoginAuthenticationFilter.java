@@ -6,7 +6,6 @@ import io.security.corespringsecurity.security.token.AjaxAuthenticationToken;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -27,8 +26,6 @@ public class AjaxLoginAuthenticationFilter extends AbstractAuthenticationProcess
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
 
-        if (!isAjax(request)) throw new AuthenticationServiceException("Authentication method not supported");
-
         AccountDto accountDto = objectMapper.readValue(request.getReader(), AccountDto.class);
         if (!StringUtils.hasText(accountDto.getUsername()) || !StringUtils.hasText(accountDto.getPassword()))
             throw new IllegalArgumentException("username or password is not valid");
@@ -36,9 +33,5 @@ public class AjaxLoginAuthenticationFilter extends AbstractAuthenticationProcess
         AjaxAuthenticationToken ajaxAuthenticationToken = new AjaxAuthenticationToken(accountDto.getUsername(), accountDto.getPassword());
 
         return getAuthenticationManager().authenticate(ajaxAuthenticationToken);
-    }
-
-    private boolean isAjax(HttpServletRequest request) {
-        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
 }

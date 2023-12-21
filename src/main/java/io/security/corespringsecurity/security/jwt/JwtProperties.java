@@ -1,4 +1,4 @@
-package io.security.corespringsecurity.config;
+package io.security.corespringsecurity.security.jwt;
 
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -16,10 +16,10 @@ public class JwtProperties {
 
     @PostConstruct
     public void init() {
-        this.signatureKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(signatureKeyString));
+        this.signatureKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
     }
 
-    private final String signatureKeyString;
+    private final String secret;
 
     private Key signatureKey;
 }

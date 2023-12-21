@@ -14,8 +14,8 @@ Content-Type: application/json
 X-Requested-With: XMLHttpRequest
 
 {
-"username": "manager",
-"password": "1234"
+  "username": "admin",
+  "password": "pass"
 }
 
 ### GET request with a header

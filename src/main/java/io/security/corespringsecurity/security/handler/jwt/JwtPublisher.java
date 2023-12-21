@@ -1,13 +1,11 @@
 package io.security.corespringsecurity.security.handler.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Jwts;
-import io.security.corespringsecurity.config.JwtProperties;
-import io.security.corespringsecurity.security.service.AccountContext;
+import io.security.corespringsecurity.security.jwt.JwtProvider;
+import io.security.corespringsecurity.security.jwt.response.JwtResponseDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -20,28 +18,18 @@ import java.nio.charset.StandardCharsets;
 public class JwtPublisher implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper;
-    private final JwtProperties jwtProperties;
+    private final JwtProvider jwtProvider;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        AccountContext accountContext = (AccountContext) authentication.getPrincipal();
 
-        String jws = Jwts.builder()
-                .header()
-                .add("typ", "jwlog-JWT")
-                .and()
-                .claim("name", accountContext.getAccount().getUsername())
-                .claim("auth", accountContext.getAuthorities())
-                .signWith(jwtProperties.getSignatureKey())
-                .compact();
-        String jwsJson = objectMapper.writeValueAsString(
-                new Object() {
-                    @Getter
-                    private final String token = jws;
-                });
+        String jws = jwtProvider.createToken(authentication);
+        JwtResponseDto jwtResponse = JwtResponseDto.builder()
+                .accessToken(jws)
+                .build();
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
-        response.getWriter().write(jwsJson);
+        response.getWriter().write(objectMapper.writeValueAsString(jwtResponse));
     }
 }

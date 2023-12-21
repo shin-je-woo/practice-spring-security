@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
-<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+<!--<meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>-->
+<!--<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>-->
 
 <head th:replace="~{layout/header::userHead}"></head>
 <script>
@@ -12,8 +12,8 @@
         const password = $("input[name='password']").val().trim();
         const data = {"username": username, "password": password};
 
-        const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
-        const csrfToken = $('meta[name="_csrf"]').attr('content');
+        /*const csrfHeader = $('meta[name="_csrf_header"]').attr('content');
+        const csrfToken = $('meta[name="_csrf"]').attr('content');*/
 
         $.ajax({
             type: "post",
@@ -21,8 +21,8 @@
             data: JSON.stringify(data),
             dataType: "json",
             beforeSend : function(xhr){
-                xhr.setRequestHeader(csrfHeader, csrfToken);
-                xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+                // xhr.setRequestHeader(csrfHeader, csrfToken);
+                // xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
                 xhr.setRequestHeader("Content-type","application/json");
             },
             success: function (data) {

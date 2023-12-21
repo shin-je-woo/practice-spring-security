@@ -1,12 +1,12 @@
 package io.security.corespringsecurity.security.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.security.corespringsecurity.config.JwtProperties;
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
 import io.security.corespringsecurity.security.handler.ajax.AjaxAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.form.FormAccessDeniedHandler;
 import io.security.corespringsecurity.security.handler.jwt.JwtPublisher;
+import io.security.corespringsecurity.security.jwt.JwtProvider;
 import io.security.corespringsecurity.security.manager.CustomAuthorizationManager;
 import io.security.corespringsecurity.security.provider.AjaxAuthenticationProvider;
 import io.security.corespringsecurity.security.service.CustomUserDetailsService;
@@ -49,7 +49,7 @@ public class JwtSecurityConfig {
     private final AuthenticationManagerBuilder authBuilder;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final SecurityResourceService securityResourceService;
-    private final JwtProperties jwtProperties;
+    private final JwtProvider jwtProvider;
 
     @Bean
     protected PasswordEncoder passwordEncoder() {
@@ -98,7 +98,7 @@ public class JwtSecurityConfig {
         authBuilder.authenticationProvider(ajaxAuthenticationProvider());
         AjaxLoginAuthenticationFilter ajaxLoginAuthenticationFilter = new AjaxLoginAuthenticationFilter(objectMapper);
         ajaxLoginAuthenticationFilter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
-        ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(new JwtPublisher(objectMapper, jwtProperties));
+        ajaxLoginAuthenticationFilter.setAuthenticationSuccessHandler(new JwtPublisher(objectMapper, jwtProvider));
         ajaxLoginAuthenticationFilter.setAuthenticationFailureHandler(new AjaxAuthenticationFailureHandler(objectMapper));
         ajaxLoginAuthenticationFilter.setSecurityContextRepository(new RequestAttributeSecurityContextRepository());
         return ajaxLoginAuthenticationFilter;
