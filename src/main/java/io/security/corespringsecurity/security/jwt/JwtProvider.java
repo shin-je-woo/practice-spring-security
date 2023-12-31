@@ -56,8 +56,9 @@ public class JwtProvider {
                         .toList();
 
         AccountDto accountDto = AccountDto.builder()
-                .id((Long) getClaimValue(payload, USER_ID))
+                .id(Long.valueOf(getClaimValue(payload, USER_ID).toString()))
                 .username(getClaimValue(payload, USER_NAME).toString())
+                .password("")
                 .roles(Arrays.stream(authList).toList())
                 .email(getClaimValue(payload, EMAIL).toString())
                 .build();

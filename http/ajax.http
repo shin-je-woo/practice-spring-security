@@ -20,5 +20,5 @@ X-Requested-With: XMLHttpRequest
 
 ### GET request with a header
 GET http://localhost:8080/mypage
-Authorization: eyJ0eXAiOiJqd2xvZy1qd3QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjIsInVubSI6InVzZXIiLCJlbWwiOiJ1c2VyQGdtYWlsLmNvbSIsImF0aCI6IlJPTEVfVVNFUiJ9.h8487h-QAfq7o3j_rRRWPg9gjM-Y_P4krRuJeWdUBGk
+Authorization: eyJ0eXAiOiJqd2xvZy1qd3QiLCJhbGciOiJIUzI1NiJ9.eyJ1aWQiOjIsInVubSI6InVzZXIiLCJlbWwiOiJ1c2VyQGdtYWlsLmNvbSIsImF0aCI6IlJPTEVfVVNFUiJ9.h8487h-QA2j_rRRWPg9gjM-Y_P4krRuJeWdUBGk
 
