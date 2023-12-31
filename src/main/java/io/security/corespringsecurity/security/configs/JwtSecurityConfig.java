@@ -3,6 +3,7 @@ package io.security.corespringsecurity.security.configs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.security.corespringsecurity.repository.UserRepository;
 import io.security.corespringsecurity.security.filter.AjaxLoginAuthenticationFilter;
+import io.security.corespringsecurity.security.filter.JwtSecurityContextFilter;
 import io.security.corespringsecurity.security.handler.ajax.AjaxAuthenticationFailureHandler;
 import io.security.corespringsecurity.security.handler.form.FormAccessDeniedHandler;
 import io.security.corespringsecurity.security.handler.jwt.JwtPublisher;
@@ -33,6 +34,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +74,7 @@ public class JwtSecurityConfig {
                 .requestMatchers("/**").access(new CustomAuthorizationManager(securityResourceService, roleHierarchy())));
 
         http.addFilterBefore(ajaxLoginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(new JwtSecurityContextFilter(jwtProvider), SecurityContextHolderFilter.class);
 
         http.exceptionHandling(handler -> handler
                 .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/loginForm"))
